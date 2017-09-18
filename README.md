@@ -18,4 +18,12 @@ TODO: The script contains lots of hard coded things it would be nice if:
 2. Copes with products being out of stock
 3. Writes to a variable excel file name
 4. Log belongs to file not to class
-5. 
+
+# PDF Reader #
+
+This script will read a pdf file and split out pages. This is specific to PDFs of a certain format, as an agenda for a meeting, with item numbers marked with 'Item'.
+Uses pdfminer and pdfrw.
+
+# ibuddy #
+
+Contains the usbapi for the ibuddy, this only works for windows
