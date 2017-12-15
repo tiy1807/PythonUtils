@@ -27,3 +27,11 @@ Uses pdfminer and pdfrw.
 # ibuddy #
 
 Contains the usbapi for the ibuddy, this only works for windows
+
+# Expenditure Record #
+
+TODO:
+Add edit function.
+Add option to open csv.
+Add option to have user defined number of previous records (default 5)
+When viewing all categories print nicely (not as a list but individually)
