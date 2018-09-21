@@ -20,7 +20,7 @@ from options_list import OptionList
 from list_input import ListInput
 from petrol_record import PetrolRecord
 
-OUTPUT_LOCATION = "C:\\Users\\owner\\OneDrive\\SkyDocuments\\Finances\\ExpenditureRecord\\"
+OUTPUT_LOCATION = ""
 
 def string_to_date(date_string):
     values = date_string.split("/")
