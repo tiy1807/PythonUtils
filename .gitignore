@@ -1,6 +1,9 @@
+
 *.log
 *.csv
 results.txt
 __pycache__/*
 */__pycache__/*
 *.json
+*.pyc
+*.csv

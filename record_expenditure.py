@@ -79,7 +79,7 @@ class ExpenditureRecord:
 
     def append_to_file(self, file):
         # Opens the file and writes the line
-        file_handler = open(file,'a')
+        file_handler = open(file,'a',encoding='latin-1')
         file_handler.write(self.to_string() + "\n")
         print("Added " + self.to_string() + " to " + file)
         file_handler.close()
@@ -119,8 +119,12 @@ class ExpenditureFile:
 
         # Read all the records in the expenditure file
         self.records = []
+<<<<<<< HEAD
         self.logger.info("Reading " + self.file)
         file_handler = open(self.file,'r')
+=======
+        file_handler = open(self.file,'r',encoding="latin-1")
+>>>>>>> 4e2723e9daa92c5a5d5f86e79876fc92703d7afc
         for line in file_handler.readlines():
             record = ExpenditureRecord(line,'r')
             #print(record.to_string())
@@ -203,6 +207,7 @@ class ExpenditureFile:
         tui = MultipleInput([tui_start_date, tui_end_date], self._print_records)
         tui.request_inputs()
 
+<<<<<<< HEAD
     def _print_records(self, start_date, end_date):
         start_date = string_to_date(start_date)
         end_date = string_to_date(end_date)
@@ -210,14 +215,20 @@ class ExpenditureFile:
             record_date = string_to_date(record.date)
             if (record_date >= start_date) and (record_date <= end_date):
                 print(record.to_string())
+=======
+    def print_all_records(self):
+        file_handler = open(self.file,'r',encoding='latin-1')
+        print(file_handler.read())
+        file_handler.close()
+>>>>>>> 4e2723e9daa92c5a5d5f86e79876fc92703d7afc
 
     def print_last_record(self):
-        file_handler = open(self.file,'r')
+        file_handler = open(self.file,'r',encoding='latin-1')
         print(file_handler.readlines()[-1])
         file_handler.close()
 
     def open_csv(self):
-        subprocess.check_output('notepad ' + self.file)
+        subprocess.call(['vim', '+', self.file])
 
     def selective_summary(self):
         tui_type = OptionInput("Which type would you like to total?", self.type_store.read())
