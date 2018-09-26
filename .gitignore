@@ -1,9 +1,2 @@
-*.log
-live_info/credentials.json
-live_info/client_secret.json
-live_info/rail_access_token.json
-maps_API_key.json
+*.pyc
 *.csv
-results.txt
-__pycache__/*
-*/__pycache__/*
