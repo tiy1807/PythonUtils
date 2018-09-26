@@ -21,6 +21,12 @@ class EmailInfo(DisplayItem):
     def get_latest_messages(self, num_messages):
         return self.service.users().messages().list(userId='me',maxResults=num_messages).execute()
 
+    def get_messages(self, max_results=10, q=''):
+        return self.service.users().messages().list(userId='me',maxResults=max_results, q=q).execute()
+
+    def get_message(self, msg_id):
+        return self.service.users().messages().get(userId='me',id=msg_id, format='full').execute()
+
     def get_info(self):
         resp = self.get_latest_messages(self.num_messages)
         email_list = EmailList()

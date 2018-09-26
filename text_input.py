@@ -21,7 +21,10 @@ class TextInput(UserInput):
         return self.answer
 
     def _ask(self):
-        user_input = input(self.text)
+        if self.default is None:
+            user_input = input(self.text + "\n")
+        else:
+            user_input = input(self.text + " (default: " + self.default + ")\n")
         return_value = self.NOT_SET
 
         for option in self.master_options:

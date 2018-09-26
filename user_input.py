@@ -33,10 +33,7 @@ class UserInput:
     INVALID_INPUT = 3
 
     def __init__(self, text, default=None):
-        if default is not None:
-            self.text = text + " (default: " + default + ")" + "\n"
-        else:
-            self.text = text + "\n"
+        self.text = text
         self.default = default
         self.abort_message = "Input aborted"
 

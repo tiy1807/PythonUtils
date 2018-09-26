@@ -6,11 +6,13 @@
 
 from user_input import UserInput
 import copy
+import logging
+from option import Option
 
 class OptionInput(UserInput):
     def __init__(self, text, options, default=None):
         UserInput.__init__(self, text, default)
-
+        self.logger = logging.getLogger('OptionInput')
         self.options = options
         self.chosen_option = None
 
@@ -18,11 +20,9 @@ class OptionInput(UserInput):
             default_opt = None
             for option in options:
                 if option == default:
-                    default_opt = copy.deepcopy(option)
-                    default_opt.name = "default"
-                    default_opt.help_text = "DEFAULT OPTION: " + default_opt.help_text
-                    default_opt.short_name = ""
-                    self.master_options.append(default_opt)
+                    self.logger.info("Setting default to:" + default)
+                    self.default_opt = Option(option.name, "", "DEFAULT OPTION: " + option.help_text, option.callback)
+                    self.master_options.append(self.default_opt)
 
     def _help_action(self):
         help_string = ""
@@ -34,7 +34,11 @@ class OptionInput(UserInput):
         return self.chosen_option.name
 
     def _ask(self):
-        user_input = input(self.text)
+        if self.default is None:
+            user_input = input(self.text + "\n")
+        else:
+            user_input = input(self.text + " (default: " + self.default_opt.name + ")\n")
+
         return_value = self.NOT_SET
 
         for option in self.master_options:
