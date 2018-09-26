@@ -61,7 +61,7 @@ class ExpenditureRecord:
             tui_inputs.request_inputs()
 
             # Triggers record specific actions
-            if tui_type.get_answer() == "Petrol":
+            if tui_inputs == UserInput.SUCCESS and tui_type.get_answer() == "Petrol":
                 self.record_petrol()
 
         elif access == 'r':
