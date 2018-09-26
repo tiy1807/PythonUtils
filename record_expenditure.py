@@ -13,6 +13,7 @@ import datetime
 import base64
 import logging
 import json
+from sys import platform
 
 from user_input import UserInput
 from option import Option
@@ -119,12 +120,7 @@ class ExpenditureFile:
 
         # Read all the records in the expenditure file
         self.records = []
-<<<<<<< HEAD
-        self.logger.info("Reading " + self.file)
-        file_handler = open(self.file,'r')
-=======
         file_handler = open(self.file,'r',encoding="latin-1")
->>>>>>> 4e2723e9daa92c5a5d5f86e79876fc92703d7afc
         for line in file_handler.readlines():
             record = ExpenditureRecord(line,'r')
             #print(record.to_string())
@@ -207,7 +203,6 @@ class ExpenditureFile:
         tui = MultipleInput([tui_start_date, tui_end_date], self._print_records)
         tui.request_inputs()
 
-<<<<<<< HEAD
     def _print_records(self, start_date, end_date):
         start_date = string_to_date(start_date)
         end_date = string_to_date(end_date)
@@ -215,12 +210,6 @@ class ExpenditureFile:
             record_date = string_to_date(record.date)
             if (record_date >= start_date) and (record_date <= end_date):
                 print(record.to_string())
-=======
-    def print_all_records(self):
-        file_handler = open(self.file,'r',encoding='latin-1')
-        print(file_handler.read())
-        file_handler.close()
->>>>>>> 4e2723e9daa92c5a5d5f86e79876fc92703d7afc
 
     def print_last_record(self):
         file_handler = open(self.file,'r',encoding='latin-1')
@@ -228,7 +217,10 @@ class ExpenditureFile:
         file_handler.close()
 
     def open_csv(self):
-        subprocess.call(['vim', '+', self.file])
+        if platform == "linux":
+            subprocess.call(['vim', '+', self.file])
+        elif platform == "win32" or platform == "win64":
+            subprocess.call('notepad ' + self.file)
 
     def selective_summary(self):
         tui_type = OptionInput("Which type would you like to total?", self.type_store.read())
