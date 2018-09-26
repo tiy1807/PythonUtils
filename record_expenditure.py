@@ -68,7 +68,7 @@ class ExpenditureRecord:
 
     def append_to_file(self, file):
         # Opens the file and writes the line
-        file_handler = open(file,'a')
+        file_handler = open(file,'a',encoding='latin-1')
         file_handler.write(self.to_string() + "\n")
         print("Added " + self.to_string() + " to " + file)
         file_handler.close()
@@ -107,7 +107,7 @@ class ExpenditureFile:
 
         # Read all the records in the expenditure file
         self.records = []
-        file_handler = open(self.file,'r')
+        file_handler = open(self.file,'r',encoding="latin-1")
         for line in file_handler.readlines():
             record = ExpenditureRecord(line,'r')
             #print(record.to_string())
@@ -171,17 +171,17 @@ class ExpenditureFile:
         print("The total amount you have spent is " + str(total))
 
     def print_all_records(self):
-        file_handler = open(self.file,'r')
+        file_handler = open(self.file,'r',encoding='latin-1')
         print(file_handler.read())
         file_handler.close()
 
     def print_last_record(self):
-        file_handler = open(self.file,'r')
+        file_handler = open(self.file,'r',encoding='latin-1')
         print(file_handler.readlines()[-1])
         file_handler.close()
 
     def open_csv(self):
-        subprocess.check_output('notepad ' + self.file)
+        subprocess.call(['vim', '+', self.file])
 
     def selective_summary(self):
         tui_type = OptionInput("Which type would you like to total?", self.type_store.read())
