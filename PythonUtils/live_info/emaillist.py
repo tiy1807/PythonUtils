@@ -1,4 +1,4 @@
-from live_info.simple_email import Email
+from PythonUtils.live_info.simple_email import Email
 
 class EmailList:
     def __init__(self):

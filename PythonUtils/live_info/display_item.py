@@ -1,4 +1,4 @@
-from live_info.results import Results
+from PythonUtils.live_info.results import Results
 
 class DisplayItem:
     def __init__(self, expiry_duration):

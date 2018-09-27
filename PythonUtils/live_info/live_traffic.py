@@ -1,5 +1,5 @@
 import requests
-from live_info.display_item import DisplayItem
+from PythonUtils.live_info.display_item import DisplayItem
 
 class TrafficInfo(DisplayItem):
     # Put your own API key here

@@ -3,7 +3,7 @@ from httplib2 import Http
 from oauth2client import file, client, tools
 import datetime
 from PythonUtils.live_info.emaillist import EmailList
-from live_info.display_item import DisplayItem
+from PythonUtils.live_info.display_item import DisplayItem
 from pathlib import Path
 
 class EmailInfo(DisplayItem):
@@ -11,7 +11,7 @@ class EmailInfo(DisplayItem):
         DisplayItem.__init__(self, expiry_duration)
         # Setup the Gmail API
         SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
-        folder = Path('live_info')
+        folder = Path('PythonUtils/PythonUtils/live_info')
         creds_file = folder / 'credentials.json'
         store = file.Storage(str(creds_file))
         creds = store.get()

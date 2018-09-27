@@ -5,8 +5,8 @@
 # predefined number of times or until the user enters the 'finished' sequence.
 # ------------------------------------------------------------------------------
 
-from option import Option
-from user_input import UserInput
+from PythonUtils.option import Option
+from PythonUtils.user_input import UserInput
 
 class ListInput:
     REPEAT_TILL_TERMINATED = 0

@@ -7,7 +7,7 @@
 # It allows validity checking of the input, and loops until a correct input is
 # recieved, with an escape sequence.
 # ------------------------------------------------------------------------------
-from option import Option
+from PythonUtils.option import Option
 # ------------------------------------------------------------------------------
 # Class UserInput
 # This class is abstract and so these objects should not be created. The following

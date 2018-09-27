@@ -4,7 +4,7 @@
 # Allows the stacking of UserInputs. Often useful for multiple text inputs.
 # ------------------------------------------------------------------------------
 
-from user_input import UserInput
+from PythonUtils.user_input import UserInput
 
 class MultipleInput:
     def __init__(self, inputs, callback):

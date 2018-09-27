@@ -1,5 +1,5 @@
 from PythonUtils.live_info.live_email import EmailInfo
-from live_info.live_manager import Display
+from PythonUtils.live_info.live_manager import Display
 
 def test_basic_email():
     # Sets an hour as the expiry duration of the information

@@ -4,8 +4,8 @@
 # Allows the user to input text (as opposed to predefined options)
 # ------------------------------------------------------------------------------
 
-from user_input import UserInput
-from option import Option
+from PythonUtils.user_input import UserInput
+from PythonUtils.option import Option
 
 class TextInput(UserInput):
     def __init__(self, text, default=None):

@@ -6,7 +6,7 @@
 # ------------------------------------------------------------------------------
 
 from threading import Thread
-from user_input import UserInput
+from PythonUtils.text_input import TextInput
 
 # ------------------------------------------------------------------------------
 # class WaitingForInput
@@ -23,7 +23,7 @@ class WaitingForInput(Thread):
         self.lock = lock
         self.sem_ready = Semaphore(0)
         self.lock.acquire()
-        self.user_input = UserInput(user_text, valid_options)
+        self.user_input = TextInput(user_text, valid_options)
 
     def run(self):
         self.sem_ready.release()

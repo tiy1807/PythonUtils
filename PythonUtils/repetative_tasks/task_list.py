@@ -3,11 +3,11 @@
 #
 # Stores a tasks in a list. Prints them in order
 # ------------------------------------------------------------------------------
-from repetative_tasks.task import Task
-from user_input import UserInput
-from multiple_inputs import MultipleInput
-from text_input import TextInput
-from object_list import ObjectList
+from PythonUtils.repetative_tasks.task import Task
+from PythonUtils.user_input import UserInput
+from PythonUtils.multiple_inputs import MultipleInput
+from PythonUtils.text_input import TextInput
+from PythonUtils.object_list import ObjectList
 
 class TaskList(ObjectList):
     def __init__(self, task_list=[]):

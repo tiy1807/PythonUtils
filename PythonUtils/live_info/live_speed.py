@@ -1,10 +1,10 @@
 import speedtest
 import datetime
-from run_till_abort import WaitingForInput
+from PythonUtils.run_till_abort import WaitingForInput
 from threading import Lock
 from threading import Semaphore
 import time
-from live_info.display_item import DisplayItem
+from PythonUtils.live_info.display_item import DisplayItem
 
 class InternetInfo(DisplayItem):
     def __init__(self, expiry_duration):

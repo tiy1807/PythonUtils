@@ -2,14 +2,14 @@
 # This class manages the various services to provide a framework to display
 # useful information to the user in rotation.
 # ------------------------------------------------------------------------------
-from live_info.live_speed import InternetInfo
-from live_info.live_traffic import TrafficInfo
-from live_info.live_rail import RailInfo
-from live_info.live_email import EmailInfo
+from PythonUtils.live_info.live_speed import InternetInfo
+from PythonUtils.live_info.live_traffic import TrafficInfo
+from PythonUtils.live_info.live_rail import RailInfo
+from PythonUtils.live_info.live_email import EmailInfo
 import datetime
-from live_info.results import Results
+from PythonUtils.live_info.results import Results
 from threading import Lock
-from run_till_abort import WaitingForInput
+from PythonUtils.run_till_abort import WaitingForInput
 import time
 
 class Display:

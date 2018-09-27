@@ -2,12 +2,12 @@
 # Class TaskReminder
 # ------------------------------------------------------------------------------
 
-from user_input import UserInput
-from option_input import OptionInput
-from option import Option
-from storer import Store
-from repetative_tasks.task_list import TaskList
-from repetative_tasks.task import Task
+from PythonUtils.user_input import UserInput
+from PythonUtils.option_input import OptionInput
+from PythonUtils.option import Option
+from PythonUtils.storer import Store
+from PythonUtils.repetative_tasks.task_list import TaskList
+from PythonUtils.repetative_tasks.task import Task
 
 class TaskReminder:
     def __init__(self, record_location):

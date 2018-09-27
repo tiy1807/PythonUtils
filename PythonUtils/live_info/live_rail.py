@@ -1,8 +1,8 @@
 import sys
 sys.path.append("C:\\Users\\owner\\Documents")
 from zeep import Client
-from user_input import UserInput
-from live_info.display_item import DisplayItem
+from PythonUtils.text_input import TextInput
+from PythonUtils.live_info.display_item import DisplayItem
 
 # WSDL location of the LDBWS rail information. The most up to date version is
 # detailed here: http://lite.realtime.nationalrail.co.uk/openldbws/
@@ -46,7 +46,7 @@ class RailInfo(DisplayItem):
         return return_string
 
 if __name__ == "__main__":
-    tui = UserInput("Which station would you like to see the departures of? "
+    tui = TextInput("Which station would you like to see the departures of? "
                     "Please enter the 3 character station code.")
     rc = tui.request_input()
     if rc == UserInput.SUCCESS:

@@ -4,10 +4,10 @@
 # Extends user input to mandate that a particular option be picked
 # ------------------------------------------------------------------------------
 
-from user_input import UserInput
+from PythonUtils.user_input import UserInput
 import copy
 import logging
-from option import Option
+from PythonUtils.option import Option
 
 class OptionInput(UserInput):
     def __init__(self, text, options, default=None):
