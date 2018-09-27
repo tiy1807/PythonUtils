@@ -4,16 +4,19 @@ from oauth2client import file, client, tools
 import datetime
 from live_info.emaillist import EmailList
 from live_info.display_item import DisplayItem
+from pathlib import Path
 
 class EmailInfo(DisplayItem):
     def __init__(self, expiry_duration, num_messages):
         DisplayItem.__init__(self, expiry_duration)
         # Setup the Gmail API
         SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
-        store = file.Storage('live_info\credentials.json')
+        folder = Path('live_info')
+        creds_file = folder / 'credentials.json'
+        store = file.Storage(str(creds_file))
         creds = store.get()
         if not creds or creds.invalid:
-            flow = client.flow_from_clientsecrets('live_info\client_secret.json', SCOPES)
+            flow = client.flow_from_clientsecrets(str(folder / 'client_secret.json'), SCOPES)
             creds = tools.run_flow(flow, store)
         self.service = build('gmail', 'v1', http=creds.authorize(Http()))
         self.num_messages = num_messages
