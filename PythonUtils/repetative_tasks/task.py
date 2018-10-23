@@ -7,7 +7,7 @@
 import datetime
 
 class Task:
-    def __init__(self, name, frequency, last_completed=datetime.datetime.strftime(datetime.datetime.today(),"%d/%m/%y")):
+    def __init__(self, name, frequency, last_completed=datetime.datetime.strftime(datetime.datetime.today(),"%d/%m/%Y")):
         # Units of frequency are in days
         self.frequency = datetime.timedelta(days=int(frequency))
         self.name = name
@@ -17,7 +17,7 @@ class Task:
         return self._last_complete
 
     def last_completed_datetime(self):
-        return datetime.datetime.strptime(self._last_complete, "%d/%m/%y")
+        return datetime.datetime.strptime(self._last_complete, "%d/%m/%Y")
 
     def due(self):
         return self.last_completed_datetime() + self.frequency
@@ -25,7 +25,7 @@ class Task:
     def duration_left(self):
         return (self.due() - datetime.datetime.combine(datetime.date.today(), datetime.datetime.min.time())).days
 
-    def completed(self, time=datetime.datetime.strftime(datetime.datetime.today(),"%d/%m/%y")):
+    def completed(self, time=datetime.datetime.strftime(datetime.datetime.today(),"%d/%m/%Y")):
         # Records into a file the completion hour of the task. Default is now.
         self._last_complete = time
 

@@ -58,10 +58,10 @@ class ExpenditureRecord:
             tui_type = OptionInput("What type of expenditure was it?", data.object_list)
 
             tui_inputs = MultipleInput([tui_date,tui_amount,tui_where,tui_type], self.set_attrs)
-            tui_inputs.request_inputs()
+            rc = tui_inputs.request_inputs()
 
             # Triggers record specific actions
-            if tui_inputs == UserInput.SUCCESS and tui_type.get_answer() == "Petrol":
+            if rc == UserInput.SUCCESS and tui_type.get_answer() == "Petrol":
                 self.record_petrol()
 
         elif access == 'r':

@@ -16,6 +16,7 @@ class MultipleInput:
 
     def request_inputs(self):
         answers = []
+        rc = UserInput.NOT_SET
         for input in self.inputs:
             rc = input.request_input()
             if rc == UserInput.ABORTED:
@@ -23,3 +24,4 @@ class MultipleInput:
             answers.append(input.get_answer())
         if rc != UserInput.ABORTED:
             self.callback(*answers)
+        return rc

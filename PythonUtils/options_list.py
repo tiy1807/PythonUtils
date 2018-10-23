@@ -7,7 +7,7 @@
 from PythonUtils.option import Option
 from PythonUtils.object_list import ObjectList
 from PythonUtils.text_input import TextInput
-from PythonUtils.wmultiple_inputs import MultipleInput
+from PythonUtils.multiple_inputs import MultipleInput
 
 class OptionList(ObjectList):
     def __init__(self, option_list=[]):

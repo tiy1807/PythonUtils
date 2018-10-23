@@ -19,7 +19,7 @@ class TaskReminder:
         print(self.task_list.to_string())
 
     def complete_action(self):
-        option_list = [Option(task.name,task.name,"") for task in self.task_list.object_list]
+        option_list = [Option(task.name,task.name[:2],"") for task in self.task_list.object_list]
         tui_which_task = OptionInput("Which task have you completed?",options=option_list)
         rc = tui_which_task.request_input()
         if rc == UserInput.SUCCESS:
