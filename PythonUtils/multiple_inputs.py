@@ -25,3 +25,9 @@ class MultipleInput:
         if rc != UserInput.ABORTED:
             self.callback(*answers)
         return rc
+
+    def get_answer(self):
+        answers = []
+        for input in self.inputs:
+            answers.append(input.get_answer())
+        return answers
