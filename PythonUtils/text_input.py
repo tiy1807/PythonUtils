@@ -14,7 +14,10 @@ class TextInput(UserInput):
         self.help_string = "No input check is made, any is valid"
         if default:
             self.help_string += "\nThe default value is: " + str(default)
-        self.regex = re.compile(regex)
+        if regex:
+            self.regex = re.compile(regex)
+        else:
+            self.regex = None
 
     def _help_action(self):
         return self.help_string
@@ -39,10 +42,14 @@ class TextInput(UserInput):
                 self.answer = self.default
                 return_value = self.SUCCESS
             else:
-                if self.regex.match(user_input):
+                if self.regex:
+                    if self.regex.match(user_input):
+                        return_value = self.SUCCESS
+                        self.answer = user_input
+                    else:
+                        return_value = self.INVALID_INPUT
+                else:
                     return_value = self.SUCCESS
                     self.answer = user_input
-                else:
-                    return_value = self.INVALID_INPUT
 
         return return_value
