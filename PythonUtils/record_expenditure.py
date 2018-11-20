@@ -198,7 +198,7 @@ class ExpenditureFile:
         return round(total,2)
 
     def print_records(self):
-        tui_start_date = TextInput("From which date?")
+        tui_start_date = TextInput("From which date?",default=None,regex="[0-9]{2}\/[0-9]{2}\/[0-9]{4}")
         tui_end_date = TextInput("To which date?",default=datetime.date.today().strftime('%d/%m/%Y'))
         tui = MultipleInput([tui_start_date, tui_end_date], self._print_records)
         tui.request_inputs()

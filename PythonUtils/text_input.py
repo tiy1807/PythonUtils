@@ -6,13 +6,15 @@
 
 from PythonUtils.user_input import UserInput
 from PythonUtils.option import Option
+import re
 
 class TextInput(UserInput):
-    def __init__(self, text, default=None):
+    def __init__(self, text, default=None, regex=None):
         UserInput.__init__(self, text, default)
         self.help_string = "No input check is made, any is valid"
         if default:
             self.help_string += "\nThe default value is: " + str(default)
+        self.regex = re.compile(regex)
 
     def _help_action(self):
         return self.help_string
@@ -33,10 +35,14 @@ class TextInput(UserInput):
                 option.run()
 
         if return_value == self.NOT_SET:
-            return_value = self.SUCCESS
             if user_input == "":
                 self.answer = self.default
+                return_value = self.SUCCESS
             else:
-                self.answer = user_input
+                if self.regex.match(user_input):
+                    return_value = self.SUCCESS
+                    self.answer = user_input
+                else:
+                    return_value = self.INVALID_INPUT
 
         return return_value
