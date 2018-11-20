@@ -206,6 +206,7 @@ class ExpenditureFile:
     def _print_records(self, start_date, end_date):
         start_date = string_to_date(start_date)
         end_date = string_to_date(end_date)
+        self.records.sort(key=lambda record:string_to_date(record.date))
         for record in self.records:
             record_date = string_to_date(record.date)
             if (record_date >= start_date) and (record_date <= end_date):
