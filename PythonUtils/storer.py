@@ -34,6 +34,10 @@ class Store:
         writer = csv.writer(open(self.file_path,access,newline=''))
         writer.writerows(object.to_csv())
 
+    def sort(self, get_sort_value):
+        object_list = self.read()
+        object_list.sort(key=lambda object:get_sort_value(object))
+
     def write_new_record(self, args):
         writer = csv.writer(open(self.file_path,"a",newline=''))
         object = self.constructor(*args)

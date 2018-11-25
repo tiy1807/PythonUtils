@@ -100,6 +100,7 @@ class ExpenditureRecord:
 
     def _record_petrol(self, litres, miles):
         petrol_store = Store(OUTPUT_LOCATION + "petrol_spending.csv", PetrolRecord)
+        petrol_store.sort(PetrolRecord.get_date)
         petrol_store.write_new_record([self.date,self.amount,litres,miles])
 
 # ------------------------------------------------------------------------------
