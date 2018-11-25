@@ -117,8 +117,9 @@ class ExpenditureFile:
         self.logger = logging.getLogger('expenditure')
         self.file = file
         self.type_store = Store(OUTPUT_LOCATION + "expenditure_config.csv", Option, OptionList)
+        self._reload_file()
 
-        # Read all the records in the expenditure file
+    def _reload_file(self):
         self.records = []
         file_handler = open(self.file,'r',encoding="latin-1")
         for line in file_handler.readlines():
@@ -222,6 +223,7 @@ class ExpenditureFile:
             subprocess.call(['vim', '+', self.file])
         elif platform == "win32" or platform == "win64":
             subprocess.call('notepad ' + self.file)
+        self._reload_file()
 
     def selective_summary(self):
         tui_type = OptionInput("Which type would you like to total?", self.type_store.read())
