@@ -11,13 +11,14 @@ import re
 class TextInput(UserInput):
     def __init__(self, text, default=None, regex=None):
         UserInput.__init__(self, text, default)
-        self.help_string = "No input check is made, any is valid"
         if default:
             self.help_string += "\nThe default value is: " + str(default)
         if regex:
             self.regex = re.compile(regex)
+            self.help_string = "Input must conform to regex " + regex
         else:
             self.regex = None
+            self.help_string = "No input check is made, any is valid"
 
     def _help_action(self):
         return self.help_string
