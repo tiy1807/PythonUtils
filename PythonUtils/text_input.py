@@ -43,7 +43,7 @@ class TextInput(UserInput):
                 return_value = self.SUCCESS
             else:
                 if self.regex:
-                    if self.regex.match(user_input):
+                    if self.regex.fullmatch(user_input):
                         return_value = self.SUCCESS
                         self.answer = user_input
                     else:
