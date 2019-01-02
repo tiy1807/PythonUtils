@@ -255,7 +255,7 @@ class ExpenditureFile:
                         end_date = decrement_day_by_one(budgeting_periods[period_id + 1] + "/" + str(year + 1))
                     else:
                         end_date = decrement_day_by_one(budgeting_periods[period_id + 1] + "/" + str(year))
-                    value = self.summary(types=budget_map[key],dates=[start_date + "/" + str(YEAR),end_date])
+                    value = self.summary(types=budget_map[key],dates=[start_date + "/" + str(year),end_date])
                     spend_totals[key] = value
                 total_budget[start_date] = spend_totals
 
