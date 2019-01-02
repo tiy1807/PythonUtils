@@ -250,25 +250,34 @@ class ExpenditureFile:
         for year in range(oldest_year, newest_year + 1):
             for period_id, start_date in list(enumerate(budgeting_periods)):
                 spend_totals = {}
+                print(budgeting_periods[-1])
+                start_date_year = start_date + "/" + str(year)
+                print(start_date)
+                if start_date == budgeting_periods[-1]:
+                    end_date = decrement_day_by_one(budgeting_periods[0] + "/" + str(year + 1))
+                else:
+                    end_date = decrement_day_by_one(budgeting_periods[period_id + 1] + "/" + str(year))
+                print(end_date)
                 for key in budget_map.keys():
-                    if start_date == list(enumerate(budgeting_periods))[-1]:
-                        end_date = decrement_day_by_one(budgeting_periods[period_id + 1] + "/" + str(year + 1))
-                    else:
-                        end_date = decrement_day_by_one(budgeting_periods[period_id + 1] + "/" + str(year))
-                    value = self.summary(types=budget_map[key],dates=[start_date + "/" + str(year),end_date])
+                    value = self.summary(types=budget_map[key],dates=[start_date_year, end_date])
                     spend_totals[key] = value
-                total_budget[start_date] = spend_totals
+                total_budget[start_date_year] = spend_totals
 
 
         output_string = "Headings,"
-        for start_date in budgeting_periods:
-            output_string += start_date + ","
+        for year in range(oldest_year, newest_year + 1):
+            for start_date in budgeting_periods:
+                start_date_year = start_date + "/" + str(year)
+                output_string += start_date_year + ","
         output_string += "\n"
 
         for category in budget_map.keys():
             output_string += category + ","
-            for start_date in budgeting_periods:
-                output_string += str(total_budget[start_date][category]) + ","
+
+            for year in range(oldest_year, newest_year + 1):
+                for start_date in budgeting_periods:
+                    start_date_year = start_date + "/" + str(year)
+                    output_string += str(total_budget[start_date_year][category]) + ","
             output_string += "\n"
 
         with open("output.csv","w") as output_handler:
