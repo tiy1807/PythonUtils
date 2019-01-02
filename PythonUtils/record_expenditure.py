@@ -242,26 +242,32 @@ class ExpenditureFile:
     def budget_report(self):
         budget_data = json.load(open("budget_mapping.json"))
         budget_map = budget_data["mapping"]
-        YEAR = "/2018"
+        newest_year = string_to_date(self.records[-1].date).year
+        oldest_year = string_to_date(self.records[0].date).year
         budgeting_periods = budget_data["periods"]
 
         total_budget = {}
-        for period_id, start_date in list(enumerate(budgeting_periods))[:-1]:
-            spend_totals = {}
-            for key in budget_map.keys():
-                end_date = decrement_day_by_one(budgeting_periods[period_id + 1] + YEAR)
-                value = self.summary(types=budget_map[key],dates=[start_date + YEAR,end_date])
-                spend_totals[key] = value
-            total_budget[start_date] = spend_totals
+        for year in range(oldest_year, newest_year + 1):
+            for period_id, start_date in list(enumerate(budgeting_periods)):
+                spend_totals = {}
+                for key in budget_map.keys():
+                    if start_date == list(enumerate(budgeting_periods))[-1]:
+                        end_date = decrement_day_by_one(budgeting_periods[period_id + 1] + "/" + str(year + 1))
+                    else:
+                        end_date = decrement_day_by_one(budgeting_periods[period_id + 1] + "/" + str(year))
+                    value = self.summary(types=budget_map[key],dates=[start_date + "/" + str(YEAR),end_date])
+                    spend_totals[key] = value
+                total_budget[start_date] = spend_totals
+
 
         output_string = "Headings,"
-        for start_date in budgeting_periods[:-1]:
+        for start_date in budgeting_periods:
             output_string += start_date + ","
         output_string += "\n"
 
         for category in budget_map.keys():
             output_string += category + ","
-            for start_date in budgeting_periods[:-1]:
+            for start_date in budgeting_periods:
                 output_string += str(total_budget[start_date][category]) + ","
             output_string += "\n"
 
