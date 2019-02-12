@@ -4,8 +4,8 @@
 # Allows the user to choose yes or no.
 # ------------------------------------------------------------------------------
 
-from PythonUtils.user_input import UserInput
 from PythonUtils.option import Option
+from PythonUtils.option_input import OptionInput
 
 class BooleanInput(OptionInput):
     def __init__(self, text, default=None):
@@ -23,3 +23,4 @@ class BooleanInput(OptionInput):
                 raise Exception(f"self.chosen_option.name should be Yes or No but was {self.chosen_option.name}")
         else:
             print("This question has not been asked. request_input has not been called, or has been with invalid input")
+        return return_value

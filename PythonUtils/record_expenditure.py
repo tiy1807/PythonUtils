@@ -15,6 +15,7 @@ import logging
 import json
 from sys import platform
 
+from boolean_input import BooleanInput
 from user_input import UserInput
 from option import Option
 from option_input import OptionInput
@@ -200,20 +201,23 @@ class ExpenditureFile:
         return round(total,2)
 
     def print_records(self):
-        self.dates_and_types_input(self._print_records)
-        tui_start_date = TextInput("From which date?",default=None,regex="[0-9]{2}\/[0-9]{2}\/[0-9]{4}")
-        tui_end_date = TextInput("To which date?",default=datetime.date.today().strftime('%d/%m/%Y'))
-        tui = MultipleInput([tui_start_date, tui_end_date], self._print_records)
-        tui.request_inputs()
+        self.date_and_types_input(self._print_records)
 
-    def _print_records(self, start_date, end_date):
+    def _print_records(self, start_date, end_date, types=[]):
+        self.logger.info(f"Printing records from {start_date} to {end_date}, in {types}")
+        self.logger.info(f"Filtering by type? {types}")
         start_date = string_to_date(start_date)
         end_date = string_to_date(end_date)
         self.records.sort(key=lambda record:string_to_date(record.date))
         for record in self.records:
             record_date = string_to_date(record.date)
             if (record_date >= start_date) and (record_date <= end_date):
-                print(record.to_string())
+                if types == []:
+                    print(record.to_string())
+                else:
+                    if record.type in types:
+                        print(record.to_string())
+
 
     def print_last_record(self):
         file_handler = open(self.file,'r',encoding='latin-1')
@@ -230,6 +234,11 @@ class ExpenditureFile:
     def date_and_types_input(self, callback_function):
         questions = []
 
+        tui_start_date = TextInput("From which date?",regex="[0-3][0-9]\/[0-1][0-9]\/20[1-3][0-9]")
+        tui_end_date = TextInput("To which date?",default=datetime.date.today().strftime('%d/%m/%Y'),regex="[0-3][0-9]\/[0-1][0-9]\/20[1-3][0-9]")
+        questions.append(tui_start_date)
+        questions.append(tui_end_date)
+
         tui_type_option = BooleanInput("Would you like to filter by type?")
         valid_input = tui_type_option.request_input()
         if valid_input == UserInput.SUCCESS:
@@ -237,11 +246,6 @@ class ExpenditureFile:
                 tui_type = OptionInput("Which type would you like to total?", self.type_store.read())
                 tui_type_list = ListInput(tui_type, ListInput.REPEAT_TILL_TERMINATED)
                 questions.append(tui_type_list)
-
-            tui_start_date = TextInput("From which date?",regex="[0-3][0-9]\/[0-1][0-9]\/20[1-3][0-9]")
-            tui_end_date = TextInput("To which date?",default=datetime.date.today().strftime('%d/%m/%Y'),regex="[0-3][0-9]\/[0-1][0-9]\/20[1-3][0-9]")
-            questions.append(tui_start_date)
-            questions.append(tui_end_date)
 
             tui = MultipleInput(questions, callback_function)
             tui.request_inputs()
