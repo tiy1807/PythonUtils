@@ -200,6 +200,7 @@ class ExpenditureFile:
         return round(total,2)
 
     def print_records(self):
+        self.dates_and_types_input(self._print_records)
         tui_start_date = TextInput("From which date?",default=None,regex="[0-9]{2}\/[0-9]{2}\/[0-9]{4}")
         tui_end_date = TextInput("To which date?",default=datetime.date.today().strftime('%d/%m/%Y'))
         tui = MultipleInput([tui_start_date, tui_end_date], self._print_records)
@@ -226,14 +227,27 @@ class ExpenditureFile:
             subprocess.call('notepad ' + self.file)
         self._reload_file()
 
-    def selective_summary(self):
-        tui_type = OptionInput("Which type would you like to total?", self.type_store.read())
-        tui_type_list = ListInput(tui_type, ListInput.REPEAT_TILL_TERMINATED)
-        tui_start_date = TextInput("From which date?")
-        tui_end_date = TextInput("To which date?",default=datetime.date.today().strftime('%d/%m/%Y'))
+    def date_and_types_input(self, callback_function):
+        questions = []
 
-        tui = MultipleInput([tui_type_list, tui_start_date, tui_end_date], self._selective_summary)
-        tui.request_inputs()
+        tui_type_option = BooleanInput("Would you like to filter by type?")
+        valid_input = tui_type_option.request_input()
+        if valid_input == UserInput.SUCCESS:
+            if tui_type_option.get_answer():
+                tui_type = OptionInput("Which type would you like to total?", self.type_store.read())
+                tui_type_list = ListInput(tui_type, ListInput.REPEAT_TILL_TERMINATED)
+                questions.append(tui_type_list)
+
+            tui_start_date = TextInput("From which date?",regex="[0-3][0-9]\/[0-1][0-9]\/20[1-3][0-9]")
+            tui_end_date = TextInput("To which date?",default=datetime.date.today().strftime('%d/%m/%Y'),regex="[0-3][0-9]\/[0-1][0-9]\/20[1-3][0-9]")
+            questions.append(tui_start_date)
+            questions.append(tui_end_date)
+
+            tui = MultipleInput(questions, callback_function)
+            tui.request_inputs()
+
+    def selective_summary(self):
+        self.date_and_types_input(self._selective_summary)
 
     def _selective_summary(self, types, start_date, end_date):
         value = self.summary(types=types,dates=[start_date,end_date])
@@ -303,7 +317,7 @@ class ExpenditureFile:
         email = Option("read email","email","Reads supplied email for any expenditure additions",self.read_email)
         add = Option("add","a","Add an item of expenditure",self.add_record)
         quit = Option("quit","q","Quits the program")
-        print_records = Option("print","p","Prints all recorded expenditure",self.print_records)
+        print_records = Option("print","p","Prints all recorded expenditure between two dates",self.print_records)
         last = Option("last","l","Prints the last record",self.print_last_record)
         edit = Option("edit","e","Opens the records in notepad for manual editing",self.open_csv)
         total = Option("total","t","Prints the total expenditure",self.selective_summary)
