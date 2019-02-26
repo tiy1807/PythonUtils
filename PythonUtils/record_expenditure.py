@@ -317,7 +317,8 @@ class ExpenditureFile:
             #print(msg_list)
             for msg in msg_list:
                 message = email.get_message_body(msg['id'])
-                records = message.split("\\r\\n")
+                print(message)
+                records = message.splitlines()
                 print(records)
                 for record in records:
                     print(record)
