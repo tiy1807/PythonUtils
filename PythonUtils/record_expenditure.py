@@ -10,7 +10,6 @@ import subprocess
 # Used to find the current day
 import datetime
 
-import base64
 import logging
 import json
 from sys import platform
@@ -104,6 +103,12 @@ class ExpenditureRecord:
         petrol_store.sort(PetrolRecord.get_date)
         petrol_store.write_new_record([self.date,self.amount,litres,miles])
 
+    def __eq__(self, second_record):
+        rc = ((self.date == second_record.date) and
+              (self.amount == second_record.amount) and
+              (self.where == second_record.where) and
+              (self.type == second_record.type))
+        return rc
 # ------------------------------------------------------------------------------
 # Class ExpenditureFile
 #
@@ -138,6 +143,9 @@ class ExpenditureFile:
     # Adds a new record
     def add_record(self):
         new_record = ExpenditureRecord(self.type_store.read_to_container(), 'w')
+        self.add_created_record(new_record)
+
+    def add_created_record(self, new_record):
         if new_record.valid:
             new_record.append_to_file(self.file)
             self.records.append(new_record)
@@ -243,7 +251,7 @@ class ExpenditureFile:
         valid_input = tui_type_option.request_input()
         if valid_input == UserInput.SUCCESS:
             if tui_type_option.get_answer():
-                tui_type = OptionInput("Which type would you like to total?", self.type_store.read())
+                tui_type = OptionInput("Which type are you interested in?", self.type_store.read())
                 tui_type_list = ListInput(tui_type, ListInput.REPEAT_TILL_TERMINATED)
                 questions.append(tui_type_list)
 
@@ -306,14 +314,19 @@ class ExpenditureFile:
         msgs = email.get_messages(10, 'to:thomasyems+expenditure@gmail.com')
         if msgs['resultSizeEstimate'] > 0:
             msg_list = msgs['messages']
-            print(msg_list)
+            #print(msg_list)
             for msg in msg_list:
-                print(msg)
-                message = email.get_message(msg['id'])
-                print(message)
-                print(message['payload'])
-                print(message['payload']['parts'][0]['body'])
-                print(base64.urlsafe_b64decode(message['payload']['parts'][0]['body']))
+                message = email.get_message_body(msg['id'])
+                records = message.split("\\r\\n")
+                print(records)
+                for record in records:
+                    print(record)
+                    if len(record.split(",")) == 4:
+                        exp_record = ExpenditureRecord(record, "r")
+                        if exp_record not in self.records:
+                            self.add_created_record(exp_record)
+                    else:
+                        print(f"Invalid record: {record}")
         else:
             print("No messages recieved that matched the pattern for expenditure")
 

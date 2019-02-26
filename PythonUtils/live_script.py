@@ -1,10 +1,9 @@
 
-from PythonUtils.live_info.live_manager import Display
-from PythonUtils.live_info.live_email import EmailInfo
-from PythonUtils.live_info.live_speed import InternetInfo
-from PythonUtils.live_info.live_rail import RailInfo
-from PythonUtils.live_info.live_traffic import TrafficInfo
-
+from live_info.live_manager import Display
+from live_info.live_email import EmailInfo
+from live_info.live_speed import InternetInfo
+from live_info.live_rail import RailInfo
+from live_info.live_traffic import TrafficInfo
 from text_input import TextInput
 
 tui_rail = TextInput("Please enter the 3 character station code")
