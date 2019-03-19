@@ -311,7 +311,8 @@ class ExpenditureFile:
 
     def read_email(self):
         email = EmailInfo(10, 10)
-        msgs = email.get_messages(10, 'to:thomasyems+expenditure@gmail.com')
+        settings = json.load(open("budget_mapping.json"))
+        msgs = email.get_messages(10, 'to:' + settings['expenditure_email'])
         if msgs['resultSizeEstimate'] > 0:
             msg_list = msgs['messages']
             #print(msg_list)

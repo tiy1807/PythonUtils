@@ -1,22 +1,23 @@
 import sys
-sys.path.append("C:\\Users\\owner\\Documents")
 from zeep import Client
 from PythonUtils.text_input import TextInput
 from PythonUtils.live_info.display_item import DisplayItem
+from PythonUtils.user_input import UserInput
+import json
 
 # WSDL location of the LDBWS rail information. The most up to date version is
 # detailed here: http://lite.realtime.nationalrail.co.uk/openldbws/
 LDBWS_WSDL = "https://lite.realtime.nationalrail.co.uk/OpenLDBWS/wsdl.aspx?ver=2017-10-01"
 
 # Access token to be supplied in the SOAP header in all web service requests
-# Set access token here
-ACCESS_TOKEN = "INVALID"
+# Token should either be stored under self.token, or in a file named rail_wsdl_token
 
 class RailInfo(DisplayItem):
     def __init__(self, expiry_duration, station_code):
         DisplayItem.__init__(self, expiry_duration)
         self.client = Client(LDBWS_WSDL)
-        self.token = {"AccessToken": {"TokenValue": ACCESS_TOKEN}}
+        access_token = json.load(open('live_info\\rail_wsdl_token.json','r'))['Token']
+        self.token = {"AccessToken": {"TokenValue": access_token}}
         self.station_code = station_code
 
     def get_info(self):

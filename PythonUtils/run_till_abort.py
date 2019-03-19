@@ -17,13 +17,13 @@ from PythonUtils.text_input import TextInput
 from threading import Semaphore
 
 class WaitingForInput(Thread):
-    def __init__(self, lock, user_text, valid_options=[]):
+    def __init__(self, lock, user_text):
         Thread.__init__(self)
         # Initialises a thread. Stores the callback function.
         self.lock = lock
         self.sem_ready = Semaphore(0)
         self.lock.acquire()
-        self.user_input = TextInput(user_text, valid_options)
+        self.user_input = TextInput(user_text)
 
     def run(self):
         self.sem_ready.release()
