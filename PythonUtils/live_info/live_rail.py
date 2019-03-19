@@ -4,6 +4,7 @@ from PythonUtils.text_input import TextInput
 from PythonUtils.live_info.display_item import DisplayItem
 from PythonUtils.user_input import UserInput
 import json
+from pathlib import Path
 
 # WSDL location of the LDBWS rail information. The most up to date version is
 # detailed here: http://lite.realtime.nationalrail.co.uk/openldbws/
@@ -16,7 +17,7 @@ class RailInfo(DisplayItem):
     def __init__(self, expiry_duration, station_code):
         DisplayItem.__init__(self, expiry_duration)
         self.client = Client(LDBWS_WSDL)
-        access_token = json.load(open('live_info\\rail_wsdl_token.json','r'))['Token']
+        access_token = json.load(open(Path('live_info') / 'rail_wsdl_token.json','r'))['Token']
         self.token = {"AccessToken": {"TokenValue": access_token}}
         self.station_code = station_code
 
