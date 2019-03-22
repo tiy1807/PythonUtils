@@ -261,7 +261,7 @@ class ExpenditureFile:
     def selective_summary(self):
         self.date_and_types_input(self._selective_summary)
 
-    def _selective_summary(self, types, start_date, end_date):
+    def _selective_summary(self, start_date, end_date, types):
         value = self.summary(types=types,dates=[start_date,end_date])
         print("The total value is: %s" % value)
 
@@ -299,7 +299,6 @@ class ExpenditureFile:
         budget_data = json.load(open("budget_mapping.json"))
         budget_map = budget_data["mapping"]
         budgeting_periods = self.create_budgeting_periods(start_date, end_date)
-
         total_budget = {}
 
         for period_id, period_start_date in list(enumerate(budgeting_periods))[:-1]:
