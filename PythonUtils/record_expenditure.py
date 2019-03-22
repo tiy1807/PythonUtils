@@ -183,9 +183,9 @@ class ExpenditureFile:
             if key not in ["dates","types"]:
                 print("Error: Invalid key - " + str(key))
 
-        self.logger.info("Start Date " + str(start_date))
-        self.logger.info("End Date " + str(end_date))
-        self.logger.info("Types " + str(types))
+        self.logger.debug("Start Date " + str(start_date))
+        self.logger.debug("End Date " + str(end_date))
+        self.logger.debug("Types " + str(types))
         for record in self.records:
             self.logger.debug("Starting: %s", record.to_string())
             record_counted = True
@@ -265,45 +265,62 @@ class ExpenditureFile:
         value = self.summary(types=types,dates=[start_date,end_date])
         print("The total value is: %s" % value)
 
-    def budget_report(self):
+    def recent_budget_report(self):
+        current_month = datetime.date.today().month
+
+    def create_budgeting_periods(self, start_date, end_date):
+        budget_data = json.load(open("budget_mapping.json"))
+        general_periods = budget_data["periods"]
+        start_date = string_to_date(start_date)
+        end_date = string_to_date(end_date) + datetime.timedelta(days=32)
+        budgeting_periods = []
+
+        for year in range(start_date.year, end_date.year + 1):
+            for period in general_periods:
+                period_date = datetime.date(year, int(period[-2:]), int(period[:2]))
+                if (period_date > start_date) and (period_date < end_date):
+                    budgeting_periods.append(period_date)
+
+        return budgeting_periods
+
+    def complete_budget_report(self):
+        start_date = self.records[0].date
+        end_date = self.records[-1].date
+        self.budget_report(start_date, end_date)
+
+    def recent_budget_report(self):
+        start_date = (string_to_date(self.records[-1].date) - datetime.timedelta(days=100)).strftime('%d/%m/%Y')
+        end_date = self.records[-1].date
+        self.budget_report(start_date, end_date)
+
+
+    def budget_report(self, start_date, end_date):
+        self.logger.info(f"Creating budget report from {start_date} to {end_date}")
         budget_data = json.load(open("budget_mapping.json"))
         budget_map = budget_data["mapping"]
-        newest_year = string_to_date(self.records[-1].date).year
-        oldest_year = string_to_date(self.records[0].date).year
-        budgeting_periods = budget_data["periods"]
+        budgeting_periods = self.create_budgeting_periods(start_date, end_date)
 
         total_budget = {}
-        for year in range(oldest_year, newest_year + 1):
-            for period_id, start_date in list(enumerate(budgeting_periods)):
-                spend_totals = {}
-                print(budgeting_periods[-1])
-                start_date_year = start_date + "/" + str(year)
-                print(start_date)
-                if start_date == budgeting_periods[-1]:
-                    end_date = decrement_day_by_one(budgeting_periods[0] + "/" + str(year + 1))
-                else:
-                    end_date = decrement_day_by_one(budgeting_periods[period_id + 1] + "/" + str(year))
-                print(end_date)
-                for key in budget_map.keys():
-                    value = self.summary(types=budget_map[key],dates=[start_date_year, end_date])
-                    spend_totals[key] = value
-                total_budget[start_date_year] = spend_totals
 
+        for period_id, period_start_date in list(enumerate(budgeting_periods))[:-1]:
+            spend_totals = {}
+            print(period_start_date)
+            period_end_date = budgeting_periods[period_id + 1] - datetime.timedelta(days=1)
+            for key in budget_map.keys():
+                value = self.summary(types=budget_map[key],dates=[period_start_date.strftime('%d/%m/%Y'), period_end_date.strftime('%d/%m/%Y')])
+                spend_totals[key] = value
+            total_budget[period_start_date] = spend_totals
 
         output_string = "Headings,"
-        for year in range(oldest_year, newest_year + 1):
-            for start_date in budgeting_periods:
-                start_date_year = start_date + "/" + str(year)
-                output_string += start_date_year + ","
+        for start_date in budgeting_periods[:-1]:
+            output_string += start_date.strftime('%d/%m/%Y') + ","
         output_string += "\n"
 
         for category in budget_map.keys():
             output_string += category + ","
 
-            for year in range(oldest_year, newest_year + 1):
-                for start_date in budgeting_periods:
-                    start_date_year = start_date + "/" + str(year)
-                    output_string += str(total_budget[start_date_year][category]) + ","
+            for start_date in budgeting_periods[:-1]:
+                output_string += str(total_budget[start_date][category]) + ","
             output_string += "\n"
 
         with open("output.csv","w") as output_handler:
@@ -341,9 +358,10 @@ class ExpenditureFile:
         edit = Option("edit","e","Opens the records in notepad for manual editing",self.open_csv)
         total = Option("total","t","Prints the total expenditure",self.selective_summary)
         add_type = Option("add type","at","Adds another valid type",self.add_type)
-        budget_report = Option("budget","b","Produces budget report",self.budget_report)
+        budget_report = Option("budget","b","Produces budget report for approx last 3 months",self.recent_budget_report)
+        full_budget_report = Option("full budget","fb","Produces budget report for entire history",self.complete_budget_report)
 
-        options = [add,quit,print_records,last,edit,total,add_type,email,budget_report]
+        options = [add,quit,print_records,last,edit,total,add_type,email,budget_report,full_budget_report]
 
         keep_going = True
         while keep_going:
