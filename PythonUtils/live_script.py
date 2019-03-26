@@ -24,5 +24,5 @@ tui_num_messages.request_input()
 email = EmailInfo(60, tui_num_messages.answer)
 
 display = Display([email, internet, rail])
-display.set_active_time(datetime.time(5,30),datetime.time(8,00))
+display.set_active_time(datetime.time(6,30),datetime.time(8,00))
 display.show_display()

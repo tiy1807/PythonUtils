@@ -40,8 +40,18 @@ class Display:
                         result.show()
                     time.sleep(wait_time)
                 else:
-                    print(datetime.datetime.now().strftime("%H:%M %d/%m/%Y") + ": Not in active window, sleeping for an hour")
-                    time.sleep(3600)
+
+                    if self.start_time > datetime.datetime.now().time():
+                        # Before the 'active' portion of the day, so sleep until then
+                        sleep_time = datetime.datetime.now() - datetime.datetime.combine(datetime.date.today(),self.start_time)
+                    elif self.end_time < datetime.datetime.now().time():
+                        # After the 'active' portion of the day, so sleep until active portion begins tomorrow
+
+                        sleep_time = datetime.datetime.combine(datetime.date.today() + datetime.timedelta(days=1),self.start_time) - datetime.datetime.now()
+
+                    sleep_until = datetime.datetime.now() + sleep_time
+                    print(datetime.datetime.now().strftime("%H:%M %d/%m/%Y") + ": Not in active window, sleeping until " + sleep_until.strftime("%H:%M %d/%m/%Y"))
+                    time.sleep(sleep_time.total_seconds())
             else:
                 print("***************************************************************")
                 print(datetime.datetime.now().strftime("%H:%M %d/%m/%Y"))

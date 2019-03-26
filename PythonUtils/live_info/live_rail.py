@@ -20,30 +20,34 @@ class RailInfo(DisplayItem):
         access_token = json.load(open(Path('live_info') / 'rail_wsdl_token.json','r'))['Token']
         self.token = {"AccessToken": {"TokenValue": access_token}}
         self.station_code = station_code
+        self.duration = 120
 
     def get_info(self):
         dep_board = self.client.service.GetDepartureBoard(15,
                                                           self.station_code,
-                                                          _soapheaders=self.token)
-        services = dep_board.trainServices.service
-        return_string = ""
-        for service in services:
-            loc = service.destination.location
-            dest_name = loc[0].locationName
-            return_string += "-----------------------------\n"
-            return_string += service["std"] + " to " + dest_name + "\n"
+                                                          _soapheaders=self.token,
+                                                          timeWindow=self.duration)
+        if dep_board:
+            services = dep_board.trainServices.service
+            return_string = ""
+            for service in services:
+                loc = service.destination.location
+                dest_name = loc[0].locationName
+                return_string += "-----------------------------\n"
+                return_string += service["std"] + " to " + dest_name + "\n"
 
-            if service.etd == "On time":
-                return_string += "This service is on time\n"
-            elif service.etd == "Delayed":
-                return_string += "This service is delayed\n"
-                details = self.client.service.GetServiceDetails(service.serviceID, _soapheaders=self.token)
-            else:
-                return_string += "Estimated arrival " + service.etd + "\n"
+                if service.etd == "On time":
+                    return_string += "This service is on time\n"
+                elif service.etd == "Delayed":
+                    return_string += "This service is delayed\n"
+                    details = self.client.service.GetServiceDetails(service.serviceID, _soapheaders=self.token)
+                else:
+                    return_string += "Estimated arrival " + service.etd + "\n"
 
-            if service.isCancelled != None:
-                return_string += "This service is cancelled\n"
-
+                if service.isCancelled != None:
+                    return_string += "This service is cancelled\n"
+        else:
+            return_string += f"There are no services to/from {self.station_code} in the next {self.duration}"
         return_string += "-----------------------------\n"
         return return_string
 
