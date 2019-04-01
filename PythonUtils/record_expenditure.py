@@ -25,6 +25,7 @@ from options_list import OptionList
 from list_input import ListInput
 from petrol_record import PetrolRecord
 from live_info.live_email import EmailInfo
+from collections import OrderedDict
 
 OUTPUT_LOCATION = ""
 
@@ -296,7 +297,9 @@ class ExpenditureFile:
 
     def budget_report(self, start_date, end_date):
         self.logger.info(f"Creating budget report from {start_date} to {end_date}")
-        budget_data = json.load(open("budget_mapping.json"))
+        with open("budget_mapping.json") as budget_json:
+            budget_data = json.load(budget_json, object_pairs_hook=OrderedDict)
+
         budget_map = budget_data["mapping"]
         budgeting_periods = self.create_budgeting_periods(start_date, end_date)
         total_budget = {}
