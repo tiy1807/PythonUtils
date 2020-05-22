@@ -49,6 +49,7 @@ class TextInput(UserInput):
                         self.answer = user_input
                     else:
                         return_value = self.INVALID_INPUT
+                        print(self.help_string)
                 else:
                     return_value = self.SUCCESS
                     self.answer = user_input

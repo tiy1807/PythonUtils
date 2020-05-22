@@ -14,30 +14,31 @@ import logging
 import json
 from sys import platform
 
-from boolean_input import BooleanInput
-from user_input import UserInput
-from option import Option
-from option_input import OptionInput
-from text_input import TextInput
-from multiple_inputs import MultipleInput
-from storer import Store
-from options_list import OptionList
-from list_input import ListInput
-from petrol_record import PetrolRecord
-from live_info.live_email import EmailInfo
+from PythonUtils.boolean_input import BooleanInput
+from PythonUtils.user_input import UserInput
+from PythonUtils.option import Option
+from PythonUtils.option_input import OptionInput
+from PythonUtils.text_input import TextInput
+from PythonUtils.multiple_inputs import MultipleInput
+from PythonUtils.storer import Store
+from PythonUtils.options_list import OptionList
+from PythonUtils.list_input import ListInput
+from PythonUtils.petrol_record import PetrolRecord
+from PythonUtils.live_info.live_email import EmailInfo
 from collections import OrderedDict
 
 OUTPUT_LOCATION = ""
 
 def string_to_date(date_string):
     values = date_string.split("/")
-    return datetime.date(int(values[2]),int(values[1]),int(values[0]))
+    return datetime.date(int(values[2]), int(values[1]), int(values[0]))
 
 def decrement_day_by_one(date_string):
     date = string_to_date(date_string)
     decrement = datetime.timedelta(days=-1)
     new_date = date + decrement
     return new_date.strftime('%d/%m/%Y')
+
 
 # ------------------------------------------------------------------------------
 # Class ExpenditureRecord:
@@ -79,6 +80,19 @@ class ExpenditureRecord:
         self.where = where
         self.type = type
 
+    def compare_to(self, comparison):
+        # {'start-date': '01/01/2020', 'end-date': 02/01/2020', 'min-amount': '1.00', 'max-amount': '5.00',
+        #  'where': [a, b, c], 'type': [x, y, z]}
+        matches = True
+        if ((comparison.get('start-date') and string_to_date(comparison['start-date']) > string_to_date(self.date)) or
+            (comparison.get('end-date') and string_to_date(self.date) > string_to_date(comparison['end-date'])) or
+            (comparison.get('min-amount') and float(comparison['min-amount']) > float(self.amount)) or
+            (comparison.get('max-amount') and float(comparison['max-amount']) > float(self.amount)) or
+            (comparison.get('where') and self.where not in comparison['where']) or
+            (comparison.get('type') and self.type not in comparison['type'])):
+            matches = False
+        return matches
+
     def append_to_file(self, file):
         # Opens the file and writes the line
         file_handler = open(file,'a',encoding='latin-1')
@@ -110,6 +124,8 @@ class ExpenditureRecord:
               (self.where == second_record.where) and
               (self.type == second_record.type))
         return rc
+
+
 # ------------------------------------------------------------------------------
 # Class ExpenditureFile
 #
@@ -215,18 +231,28 @@ class ExpenditureFile:
     def _print_records(self, start_date, end_date, types=[]):
         self.logger.info(f"Printing records from {start_date} to {end_date}, in {types}")
         self.logger.info(f"Filtering by type? {types}")
-        start_date = string_to_date(start_date)
-        end_date = string_to_date(end_date)
-        self.records.sort(key=lambda record:string_to_date(record.date))
-        for record in self.records:
-            record_date = string_to_date(record.date)
-            if (record_date >= start_date) and (record_date <= end_date):
-                if types == []:
-                    print(record.to_string())
-                else:
-                    if record.type in types:
-                        print(record.to_string())
 
+        filtered_records = self.filter_records([{'start-date': start_date,
+                                                'end-date': end_date,
+                                                'type': types}])
+
+        filtered_records.sort(key=lambda record: string_to_date(record.date))
+
+        for record in filtered_records:
+            print(record.to_string())
+
+    def filter_records(self, conditions):
+        # [{'start-date': '01/01/2020', 'end-date': '31/01/2020', 'types': [x, y, z]},
+        #  {'start-date': '01/03/2020', 'end-date': '02/03/2020', 'types': [all]}]
+        filtered_records = []
+        for record in self.records:
+            append = False
+            for condition in conditions:
+                if record.compare_to(condition):
+                    append = True
+            if append:
+                filtered_records.append(record)
+        return filtered_records
 
     def print_last_record(self):
         file_handler = open(self.file,'r',encoding='latin-1')
@@ -248,16 +274,12 @@ class ExpenditureFile:
         questions.append(tui_start_date)
         questions.append(tui_end_date)
 
-        tui_type_option = BooleanInput("Would you like to filter by type?")
-        valid_input = tui_type_option.request_input()
-        if valid_input == UserInput.SUCCESS:
-            if tui_type_option.get_answer():
-                tui_type = OptionInput("Which type are you interested in?", self.type_store.read())
-                tui_type_list = ListInput(tui_type, ListInput.REPEAT_TILL_TERMINATED)
-                questions.append(tui_type_list)
+        tui_type = OptionInput("Which type are you interested in?", self.type_store.read())
+        tui_type_list = ListInput(tui_type, ListInput.REPEAT_TILL_TERMINATED)
+        questions.append(tui_type_list)
 
-            tui = MultipleInput(questions, callback_function)
-            tui.request_inputs()
+        tui = MultipleInput(questions, callback_function)
+        tui.request_inputs()
 
     def selective_summary(self):
         self.date_and_types_input(self._selective_summary)
