@@ -12,6 +12,7 @@ import datetime
 
 import logging
 import json
+from collections import OrderedDict
 from sys import platform
 
 from PythonUtils.boolean_input import BooleanInput
@@ -211,19 +212,19 @@ class ExpenditureFile:
                 record_counted = False
             if date_filter:
                 record_date = string_to_date(record.date)
-                if (start_date) and (record_date < start_date):
+                if start_date and (record_date < start_date):
                     self.logger.debug("Record before date range")
                     record_counted = False
-                if (end_date) and (record_date > end_date):
+                if end_date and (record_date > end_date):
                     self.logger.debug("Record after date range")
                     record_counted = False
 
             if record_counted:
                 self.logger.debug("Record counted")
-                total += round(float(record.amount),2)
+                total += round(float(record.amount), 2)
             else:
                 self.logger.debug("Record ignored")
-        return round(total,2)
+        return round(total, 2)
 
     def print_records(self):
         self.date_and_types_input(self._print_records)
@@ -236,12 +237,11 @@ class ExpenditureFile:
                                                 'end-date': end_date,
                                                 'type': types}])
 
-        filtered_records.sort(key=lambda record: string_to_date(record.date))
-
         ExpenditureFile._print_out_records(filtered_records)
 
     @staticmethod
     def _print_out_records(records):
+        records.sort(key=lambda record: string_to_date(record.date))
         for record in records:
             print(record.to_string())
 
@@ -281,7 +281,7 @@ class ExpenditureFile:
         questions = []
 
         tui_start_date = DateInput("From which date?")
-        tui_end_date = DateInput("To which date?",default=datetime.date.today().strftime('%d/%m/%Y'))
+        tui_end_date = DateInput("To which date?", default=datetime.date.today().strftime('%d/%m/%Y'))
         questions.append(tui_start_date)
         questions.append(tui_end_date)
 
@@ -296,11 +296,8 @@ class ExpenditureFile:
         self.date_and_types_input(self._selective_summary)
 
     def _selective_summary(self, start_date, end_date, types):
-        value = self.summary(types=types,dates=[start_date,end_date])
+        value = self.summary(types=types, dates=[start_date, end_date])
         print("The total value is: %s" % value)
-
-    def recent_budget_report(self):
-        current_month = datetime.date.today().month
 
     def create_budgeting_periods(self, start_date, end_date):
         budget_data = json.load(open("budget_mapping.json"))
@@ -323,10 +320,9 @@ class ExpenditureFile:
         self.budget_report(start_date, end_date)
 
     def recent_budget_report(self):
-        start_date = (string_to_date(self.records[-1].date) - datetime.timedelta(days=100)).strftime('%d/%m/%Y')
-        end_date = self.records[-1].date
-        self.budget_report(start_date, end_date)
-
+        today = datetime.datetime.today()
+        start_date = (today - datetime.timedelta(days=100))
+        self.budget_report(start_date.strftime('%d/%m/%Y'), today.strftime('%d/%m/%Y'))
 
     def budget_report(self, start_date, end_date):
         self.logger.info(f"Creating budget report from {start_date} to {end_date}")
@@ -342,7 +338,8 @@ class ExpenditureFile:
             print(period_start_date)
             period_end_date = budgeting_periods[period_id + 1] - datetime.timedelta(days=1)
             for key in budget_map.keys():
-                value = self.summary(types=budget_map[key],dates=[period_start_date.strftime('%d/%m/%Y'), period_end_date.strftime('%d/%m/%Y')])
+                value = self.summary(types=budget_map[key], dates=[period_start_date.strftime('%d/%m/%Y'),
+                                                                   period_end_date.strftime('%d/%m/%Y')])
                 spend_totals[key] = value
             total_budget[period_start_date] = spend_totals
 
@@ -358,7 +355,7 @@ class ExpenditureFile:
                 output_string += str(total_budget[start_date][category]) + ","
             output_string += "\n"
 
-        with open("output.csv","w") as output_handler:
+        with open("output.csv", "w") as output_handler:
             output_handler.write(output_string)
 
     def read_email(self):
@@ -367,7 +364,6 @@ class ExpenditureFile:
         msgs = email.get_messages(10, 'to:' + settings['expenditure_email'])
         if msgs['resultSizeEstimate'] > 0:
             msg_list = msgs['messages']
-            #print(msg_list)
             for msg in msg_list:
                 message = email.get_message_body(msg['id'])
                 print(message)
@@ -385,24 +381,20 @@ class ExpenditureFile:
             print("No messages recieved that matched the pattern for expenditure")
 
     def run(self):
-        email = Option("read email","email","Reads supplied email for any expenditure additions",self.read_email)
-        add = Option("add","a","Add an item of expenditure",self.add_record)
-        quit = Option("quit","q","Quits the program")
-        print_records = Option("print","p","Prints all recorded expenditure between two dates",self.print_records)
-        print_current_month = Option("print current month", "pm", "Prints current month expenditure",self.print_current_month)
-        last = Option("last","l","Prints the last record",self.print_last_record)
-        edit = Option("edit","e","Opens the records in notepad for manual editing",self.open_csv)
-        total = Option("total","t","Prints the total expenditure",self.selective_summary)
-        add_type = Option("add type","at","Adds another valid type",self.add_type)
-        budget_report = Option("budget","b","Produces budget report for approx last 3 months",self.recent_budget_report)
-        full_budget_report = Option("full budget","fb","Produces budget report for entire history",self.complete_budget_report)
 
-        options = [add,quit,print_records,print_current_month,edit,total,add_type,email,budget_report,full_budget_report]
+        options = [Option("read email", "email", "Reads supplied email for any expenditure additions", self.read_email),
+                   Option("add", "a", "Add an item of expenditure", self.add_record),
+                   Option("quit", "q", "Quits the program"),
+                   Option("print", "p", "Prints all recorded expenditure between two dates", self.print_records),
+                   Option("print current month", "pm", "Prints current month expenditure", self.print_current_month),
+                   Option("last", "l", "Prints the last record", self.print_last_record),
+                   Option("edit", "e", "Opens the records in notepad for manual editing", self.open_csv),
+                   Option("total", "t", "Prints the total expenditure", self.selective_summary),
+                   Option("add type", "at", "Adds another valid type", self.add_type),
+                   Option("budget", "b", "Produces budget report for approx last 3 months", self.recent_budget_report),
+                   Option("full budget", "fb", "Produces budget report for entire history", self.complete_budget_report)]
 
-        keep_going = True
-        while keep_going:
+        tui = OptionInput(text="What would you like to do?", options=options, default="a")
+        while tui.chosen_option != "quit":
             self.logger.info("Asking user question")
-            tui = OptionInput("What would you like to do?",options,"a")
             tui.request_input()
-            if tui.chosen_option == quit.name:
-                keep_going = False
