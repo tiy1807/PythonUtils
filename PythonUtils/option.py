@@ -9,7 +9,7 @@
 SUCCESS = 0
 
 class Option:
-    def __init__(self, name, short_name, help_text,callback=None,
+    def __init__(self, name, short_name, help_text, callback=None,
                  return_value=SUCCESS,
                  return_content=""
                  ):
@@ -33,7 +33,10 @@ class Option:
     def to_csv(self):
         return [self.name, self.short_name, self.help_text]
 
-    def run(self):
+    def run(self, *params):
         print("Running Option with name: " + self.name)
         if self.callback is not None:
-            self.callback()
+            if len(params) == 0:
+                self.callback()
+            else:
+                self.callback(*params)

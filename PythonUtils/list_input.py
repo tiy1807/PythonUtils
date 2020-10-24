@@ -14,8 +14,10 @@ class ListInput:
 
     def __init__(self, input, repeats):
         self.input = input
-        finished_opt = Option("\\finished","\\f","Stops asking this question")
+        finished_opt = Option(name="\\finished", short_name="\\f", help_text="Stops asking this question")
         self.input.master_options.append(finished_opt)
+        self.input.default_opt = finished_opt
+        self.input.default = finished_opt.short_name
 
         self.repeats = repeats
         if self.repeats == self.REPEAT_TILL_TERMINATED:

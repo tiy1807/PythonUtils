@@ -265,10 +265,8 @@ class ExpenditureFile:
                 filtered_records.append(record)
         return filtered_records
 
-    def print_last_record(self):
-        file_handler = open(self.file,'r',encoding='latin-1')
-        print(file_handler.readlines()[-1])
-        file_handler.close()
+    def print_last_record(self, num_records=1):
+        ExpenditureFile._print_out_records(self.records[-int(num_records):])
 
     def open_csv(self):
         if platform == "linux":
@@ -280,12 +278,12 @@ class ExpenditureFile:
     def date_and_types_input(self, callback_function):
         questions = []
 
-        tui_start_date = DateInput("From which date?")
-        tui_end_date = DateInput("To which date?", default=datetime.date.today().strftime('%d/%m/%Y'))
+        tui_start_date = DateInput(text="From which date?")
+        tui_end_date = DateInput(text="To which date?", default=datetime.date.today().strftime('%d/%m/%Y'))
         questions.append(tui_start_date)
         questions.append(tui_end_date)
 
-        tui_type = OptionInput("Which type are you interested in?", self.type_store.read(), default="\\f")
+        tui_type = OptionInput("Which type are you interested in?", self.type_store.read())
         tui_type_list = ListInput(tui_type, ListInput.REPEAT_TILL_TERMINATED)
         questions.append(tui_type_list)
 
