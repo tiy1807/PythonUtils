@@ -25,7 +25,7 @@ from PythonUtils.options_list import OptionList
 from PythonUtils.list_input import ListInput
 from PythonUtils.petrol_record import PetrolRecord
 from PythonUtils.live_info.live_email import EmailInfo
-from collections import OrderedDict
+from PythonUtils.date_input import DateInput
 
 OUTPUT_LOCATION = ""
 
@@ -53,7 +53,7 @@ class ExpenditureRecord:
         if access == 'w':
             today = datetime.date.today().strftime('%d/%m/%Y')
 
-            tui_date = TextInput("When did you spend it?", today)
+            tui_date = DateInput(text="When did you spend it?", default=today)
             tui_amount = TextInput("How much have you spent?")
             tui_where = TextInput("Where did you spend it?")
 
@@ -238,8 +238,19 @@ class ExpenditureFile:
 
         filtered_records.sort(key=lambda record: string_to_date(record.date))
 
-        for record in filtered_records:
+        ExpenditureFile._print_out_records(filtered_records)
+
+    @staticmethod
+    def _print_out_records(records):
+        for record in records:
             print(record.to_string())
+
+    def print_current_month(self):
+        today = datetime.datetime.today()
+        start_date = datetime.date(today.year, today.month, 1)
+        filtered_records = self.filter_records([{'start-date' : start_date.strftime('%d/%m/%Y'),
+                                                 'end-date' : today.strftime('%d/%m/%Y')}])
+        ExpenditureFile._print_out_records(filtered_records)
 
     def filter_records(self, conditions):
         # [{'start-date': '01/01/2020', 'end-date': '31/01/2020', 'types': [x, y, z]},
@@ -269,12 +280,12 @@ class ExpenditureFile:
     def date_and_types_input(self, callback_function):
         questions = []
 
-        tui_start_date = TextInput("From which date?",regex="[0-3][0-9]\/[0-1][0-9]\/20[1-3][0-9]")
-        tui_end_date = TextInput("To which date?",default=datetime.date.today().strftime('%d/%m/%Y'),regex="[0-3][0-9]\/[0-1][0-9]\/20[1-3][0-9]")
+        tui_start_date = DateInput("From which date?")
+        tui_end_date = DateInput("To which date?",default=datetime.date.today().strftime('%d/%m/%Y'))
         questions.append(tui_start_date)
         questions.append(tui_end_date)
 
-        tui_type = OptionInput("Which type are you interested in?", self.type_store.read())
+        tui_type = OptionInput("Which type are you interested in?", self.type_store.read(), default="\\f")
         tui_type_list = ListInput(tui_type, ListInput.REPEAT_TILL_TERMINATED)
         questions.append(tui_type_list)
 
@@ -378,6 +389,7 @@ class ExpenditureFile:
         add = Option("add","a","Add an item of expenditure",self.add_record)
         quit = Option("quit","q","Quits the program")
         print_records = Option("print","p","Prints all recorded expenditure between two dates",self.print_records)
+        print_current_month = Option("print current month", "pm", "Prints current month expenditure",self.print_current_month)
         last = Option("last","l","Prints the last record",self.print_last_record)
         edit = Option("edit","e","Opens the records in notepad for manual editing",self.open_csv)
         total = Option("total","t","Prints the total expenditure",self.selective_summary)
@@ -385,7 +397,7 @@ class ExpenditureFile:
         budget_report = Option("budget","b","Produces budget report for approx last 3 months",self.recent_budget_report)
         full_budget_report = Option("full budget","fb","Produces budget report for entire history",self.complete_budget_report)
 
-        options = [add,quit,print_records,last,edit,total,add_type,email,budget_report,full_budget_report]
+        options = [add,quit,print_records,print_current_month,edit,total,add_type,email,budget_report,full_budget_report]
 
         keep_going = True
         while keep_going:
