@@ -2,9 +2,11 @@ import speedtest
 import datetime
 from PythonUtils.run_till_abort import WaitingForInput
 from threading import Lock
-from threading import Semaphore
 import time
 from PythonUtils.live_info.display_item import DisplayItem
+from PythonUtils.record import Record
+from PythonUtils.storer import Store
+
 
 class InternetInfo(DisplayItem):
     def __init__(self, expiry_duration):
@@ -12,7 +14,7 @@ class InternetInfo(DisplayItem):
         self.server = speedtest.Speedtest(timeout=300)
         self.server.get_servers()
         self.server.get_best_server()
-        self.file_path = "results.txt"
+        self.information_store = Store("internet_connectivity.csv", Record)
 
     def set_file(self, file_path):
         self.file_path = file_path
@@ -38,13 +40,11 @@ class InternetInfo(DisplayItem):
     def record_speed(self, interval):
         # The interval between records is not accurate. Uses sleep, and thread
         # control but should be okay. interval is in seconds.
-        file_handler = open(self.file_path,'a')
         lock = Lock()
 
         # Creates a thread waiting for user input, which takes control of the
         # lock. lock is released when user input is detected
-        wait_for_input = WaitingForInput(lock, "Press enter to stop recording " +
-            "internet bandwidth")
+        wait_for_input = WaitingForInput(lock, "Press enter to stop recording internet bandwidth")
         wait_for_input.start()
         wait_for_input.wait_till_up()
 
@@ -52,13 +52,13 @@ class InternetInfo(DisplayItem):
             self.server.get_servers()
             self.server.get_best_server()
             self.test()
-            file_handler.write(self.results_string() + "\n")
+            results_dict = self.server.results.dict()
+            is_connected = (results_dict['download'] > 0)
+            self.information_store.write_new_record([datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                                                     is_connected,
+                                                     results_dict['ping'],
+                                                     results_dict['download'],
+                                                     results_dict['upload']])
             time.sleep(interval)
 
         lock.release()
-        file_handler.close()
-
-
-if __name__ == "__main__":
-    internet = InternetInfo()
-    internet.record_speed(10)

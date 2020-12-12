@@ -96,9 +96,9 @@ class ExpenditureRecord:
 
     def append_to_file(self, file):
         # Opens the file and writes the line
-        file_handler = open(file,'a',encoding='latin-1')
+        file_handler = open(file, 'a', encoding='latin-1')
         file_handler.write(self.to_string() + "\n")
-        print("Added " + self.to_string() + " to " + file)
+        print(f"Added {self.to_string()} to {file}")
         file_handler.close()
 
     def to_string(self):
@@ -138,17 +138,17 @@ class ExpenditureRecord:
 #             of the records.
 # ------------------------------------------------------------------------------
 class ExpenditureFile:
-    def __init__(self, file):
+    def __init__(self, file, config_file="expenditure_config.csv"):
         self.logger = logging.getLogger('expenditure')
         self.file = file
-        self.type_store = Store(OUTPUT_LOCATION + "expenditure_config.csv", Option, OptionList)
+        self.type_store = Store(config_file, Option, OptionList)
         self._reload_file()
 
     def _reload_file(self):
         self.records = []
-        file_handler = open(self.file,'r',encoding="latin-1")
+        file_handler = open(self.file, 'r', encoding="latin-1")
         for line in file_handler.readlines():
-            record = ExpenditureRecord(line,'r')
+            record = ExpenditureRecord(line, 'r')
             #print(record.to_string())
             self.records.append(record)
         file_handler.close()

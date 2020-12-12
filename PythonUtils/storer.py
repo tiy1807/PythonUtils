@@ -15,7 +15,7 @@ class Store:
         self.container = object_container
 
     def read_to_container(self):
-        if self.container == None:
+        if self.container is None:
             raise TypeError("No container has been defined for this object")
 
         return self.container(self.read())
@@ -39,6 +39,7 @@ class Store:
         object_list.sort(key=lambda object:get_sort_value(object))
 
     def write_new_record(self, args):
-        writer = csv.writer(open(self.file_path,"a",newline=''))
-        object = self.constructor(*args)
-        writer.writerow(object.to_csv())
+        with open(self.file_path, "a", newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            object = self.constructor(*args)
+            writer.writerow(object.to_csv())
