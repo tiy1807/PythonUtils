@@ -4,17 +4,17 @@
 # Contains detailed information about the purchase of petrol
 # ------------------------------------------------------------------------------
 import datetime
+from PythonUtils.record import Record
 
-class PetrolRecord:
-    def __init__(self, date, price, volume, mileage):
-        self.date = date
-        self.price = price
-        self.volume = volume
-        self.mileage = mileage
 
-    def to_csv(self):
-        return [self.date, self.price, self.volume, self.mileage]
+class PetrolRecord(Record):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.date = args[0]
+        self.price = args[1]
+        self.volume = args[2]
+        self.mileage = args[3]
 
     def get_date(self):
         values = self.date.split("/")
-        return datetime.date(int(values[2]),int(values[1]),int(values[0]))
+        return datetime.date(int(values[2]), int(values[1]), int(values[0]))
