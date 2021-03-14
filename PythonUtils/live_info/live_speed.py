@@ -1,4 +1,5 @@
 import speedtest
+import socket
 import datetime
 from PythonUtils.run_till_abort import WaitingForInput
 from threading import Lock
@@ -54,11 +55,13 @@ class InternetInfo(DisplayItem):
             self.test()
             results_dict = self.server.results.dict()
             is_connected = (results_dict['download'] > 0)
-            self.information_store.write_new_record([datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
-                                                     is_connected,
-                                                     results_dict['ping'],
-                                                     results_dict['download'],
-                                                     results_dict['upload']])
+            locally_connected = (socket.gethostbyname(socket.gethostname()) != "127.0.0.1")
+            self.information_store.write_new_record(datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                                                    is_connected,
+                                                    results_dict['ping'],
+                                                    results_dict['download'],
+                                                    results_dict['upload'],
+                                                    locally_connected)
             time.sleep(interval)
 
         lock.release()

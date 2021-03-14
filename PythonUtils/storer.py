@@ -8,6 +8,8 @@
 import csv
 import sys
 
+from PythonUtils.record import Record
+
 class Store:
     def __init__(self, file_path, object, object_container=None):
         self.file_path = file_path
@@ -23,23 +25,25 @@ class Store:
     def read(self):
         # Reads the .csv file, and returns a list of objects
         object_list = []
-        reader = csv.reader(open(self.file_path))
-        for row in reader:
-            object_list.append(self.constructor(*row))
-        return object_list
+        with open(self.file_path) as file:
+            reader = csv.reader(file)
+            for row in reader:
+                object_list.append(self.constructor(*row))
+            return object_list
 
     def write(self, object, access="w"):
         # Overwrites file. Writes objects in a .csv format. Requires object
         # to have a to_csv function
         writer = csv.writer(open(self.file_path,access,newline=''))
+        print(f"Writing {object.to_csv()} to {self.file_path}")
         writer.writerows(object.to_csv())
 
     def sort(self, get_sort_value):
         object_list = self.read()
         object_list.sort(key=lambda object:get_sort_value(object))
 
-    def write_new_record(self, args):
+    def write_new_record(self, *args):
         with open(self.file_path, "a", newline='') as csvfile:
             writer = csv.writer(csvfile)
-            object = self.constructor(*args)
-            writer.writerow(object.to_csv())
+            record = self.constructor(*args)
+            writer.writerow(record.to_csv())

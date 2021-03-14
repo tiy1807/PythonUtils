@@ -14,6 +14,7 @@ import logging
 import json
 from collections import OrderedDict
 from sys import platform
+from pathlib import Path
 
 from PythonUtils.boolean_input import BooleanInput
 from PythonUtils.user_input import UserInput
@@ -22,6 +23,7 @@ from PythonUtils.option_input import OptionInput
 from PythonUtils.text_input import TextInput
 from PythonUtils.multiple_inputs import MultipleInput
 from PythonUtils.storer import Store
+from PythonUtils.record import Record
 from PythonUtils.options_list import OptionList
 from PythonUtils.list_input import ListInput
 from PythonUtils.petrol_record import PetrolRecord
@@ -47,39 +49,25 @@ def decrement_day_by_one(date_string):
 # Gains the user input to create the text.
 # Note there is no error checking.
 # ------------------------------------------------------------------------------
-class ExpenditureRecord:
-    def __init__(self, data, access):
-        self.valid = False
+class ExpenditureRecord(Record):
+    def __init__(self, *data):
+        super().__init__(*data)
 
-        if access == 'w':
-            today = datetime.date.today().strftime('%d/%m/%Y')
+    @property
+    def date(self):
+        return self.value_tuple[0]
 
-            tui_date = DateInput(text="When did you spend it?", default=today)
-            tui_amount = TextInput("How much have you spent?")
-            tui_where = TextInput("Where did you spend it?")
+    @property
+    def amount(self):
+        return self.value_tuple[1]
 
-            tui_type = OptionInput("What type of expenditure was it?", data.object_list)
+    @property
+    def where(self):
+        return self.value_tuple[2]
 
-            tui_inputs = MultipleInput([tui_date,tui_amount,tui_where,tui_type], self.set_attrs)
-            rc = tui_inputs.request_inputs()
-
-            # Triggers record specific actions
-            if rc == UserInput.SUCCESS and tui_type.get_answer() == "Petrol":
-                self.record_petrol()
-
-        elif access == 'r':
-            data = data.rstrip()
-            properties = data.split(",")
-            self.set_attrs(*properties)
-        else:
-            print("Something has gone wrong ...")
-
-    def set_attrs(self, date, amount, where, type):
-        self.valid = True
-        self.date = date
-        self.amount = amount
-        self.where = where
-        self.type = type
+    @property
+    def type(self):
+        return self.value_tuple[3]
 
     def compare_to(self, comparison):
         # {'start-date': '01/01/2020', 'end-date': 02/01/2020', 'min-amount': '1.00', 'max-amount': '5.00',
@@ -94,37 +82,8 @@ class ExpenditureRecord:
             matches = False
         return matches
 
-    def append_to_file(self, file):
-        # Opens the file and writes the line
-        file_handler = open(file, 'a', encoding='latin-1')
-        file_handler.write(self.to_string() + "\n")
-        print(f"Added {self.to_string()} to {file}")
-        file_handler.close()
-
     def to_string(self):
-        properties = [self.date, self.amount, self.where, self.type]
-        return ",".join(properties)
-
-    def record_petrol(self):
-        # This is extra functionallity when recording petrol expenditure, which
-        # asks additional questions and saves that information in the petrol
-        # log.
-        tui_litres = TextInput("How many litres did you buy?")
-        tui_miles = TextInput("What is the mileage on the car?")
-        tui = MultipleInput([tui_litres, tui_miles], self._record_petrol)
-        tui.request_inputs()
-
-    def _record_petrol(self, litres, miles):
-        petrol_store = Store(OUTPUT_LOCATION + "petrol_spending.csv", PetrolRecord)
-        petrol_store.sort(PetrolRecord.get_date)
-        petrol_store.write_new_record([self.date,self.amount,litres,miles])
-
-    def __eq__(self, second_record):
-        rc = ((self.date == second_record.date) and
-              (self.amount == second_record.amount) and
-              (self.where == second_record.where) and
-              (self.type == second_record.type))
-        return rc
+        return ",".join(self.to_csv())
 
 
 # ------------------------------------------------------------------------------
@@ -137,21 +96,21 @@ class ExpenditureRecord:
 # - records - This contains a list of expenditure record objects. This reads all
 #             of the records.
 # ------------------------------------------------------------------------------
-class ExpenditureFile:
-    def __init__(self, file, config_file="expenditure_config.csv"):
+class ExpenditureFile(Store):
+    def __init__(self, settings_file="settings.json"):
         self.logger = logging.getLogger('expenditure')
-        self.file = file
-        self.type_store = Store(config_file, Option, OptionList)
-        self._reload_file()
 
-    def _reload_file(self):
-        self.records = []
-        file_handler = open(self.file, 'r', encoding="latin-1")
-        for line in file_handler.readlines():
-            record = ExpenditureRecord(line, 'r')
-            #print(record.to_string())
-            self.records.append(record)
-        file_handler.close()
+        with open(settings_file) as f:
+            settings = json.load(f)
+            self.file = settings["files"]["expenditure"]
+            super().__init__(self.file, ExpenditureRecord)
+
+            self.type_store = Store(settings["files"]["categories"], Option, OptionList)
+            self.petrol_store = Store(settings["files"]["petrol"], PetrolRecord)
+
+    @property
+    def records(self):
+        return self.read()
 
     def add_type(self):
         valid_types = self.type_store.read_to_container()
@@ -160,15 +119,35 @@ class ExpenditureFile:
 
     # Adds a new record
     def add_record(self):
-        new_record = ExpenditureRecord(self.type_store.read_to_container(), 'w')
-        self.add_created_record(new_record)
+        today = datetime.date.today().strftime('%d/%m/%Y')
 
-    def add_created_record(self, new_record):
-        if new_record.valid:
-            new_record.append_to_file(self.file)
-            self.records.append(new_record)
-        else:
-            print("Record invalid. Adding aborted")
+        tui_date = DateInput(text="When did you spend it?", default=today)
+        tui_amount = TextInput("How much have you spent?")
+        tui_where = TextInput("Where did you spend it?")
+
+        tui_type = OptionInput("What type of expenditure was it?", self.type_store.read_to_container().object_list)
+
+        tui_inputs = MultipleInput([tui_date, tui_amount, tui_where, tui_type], self.add_created_record)
+        rc = tui_inputs.request_inputs()
+
+        if rc == UserInput.SUCCESS and tui_type.get_answer() == "Petrol":
+            self.add_petrol_record()
+
+    def add_petrol_record(self):
+        # This is extra functionallity when recording petrol expenditure, which
+        # asks additional questions and saves that information in the petrol
+        # log.
+        tui_litres = TextInput("How many litres did you buy?")
+        tui_miles = TextInput("What is the mileage on the car?")
+        tui = MultipleInput([tui_litres, tui_miles], self._record_petrol)
+        tui.request_inputs()
+
+    def _record_petrol(self, litres, miles):
+        most_recent_record = self.read()[-1]
+        self.petrol_store.write_new_record(most_recent_record.date, most_recent_record.amount, litres, miles)
+
+    def add_created_record(self, *args):
+        self.write_new_record(*args)
 
     def summary(self, **properties):
         # properties contains key words that allow filtering of the records by
@@ -273,7 +252,6 @@ class ExpenditureFile:
             subprocess.call(['vim', '+', self.file])
         elif platform == "win32" or platform == "win64":
             subprocess.call('notepad ' + self.file)
-        self._reload_file()
 
     def date_and_types_input(self, callback_function):
         questions = []
@@ -298,7 +276,7 @@ class ExpenditureFile:
         print("The total value is: %s" % value)
 
     def create_budgeting_periods(self, start_date, end_date):
-        budget_data = json.load(open("budget_mapping.json"))
+        budget_data = json.load(open("settings.json"))
         general_periods = budget_data["periods"]
         start_date = string_to_date(start_date)
         end_date = string_to_date(end_date) + datetime.timedelta(days=32)
@@ -324,7 +302,7 @@ class ExpenditureFile:
 
     def budget_report(self, start_date, end_date):
         self.logger.info(f"Creating budget report from {start_date} to {end_date}")
-        with open("budget_mapping.json") as budget_json:
+        with open("settings.json") as budget_json:
             budget_data = json.load(budget_json, object_pairs_hook=OrderedDict)
 
         budget_map = budget_data["mapping"]
@@ -358,7 +336,7 @@ class ExpenditureFile:
 
     def read_email(self):
         email = EmailInfo(10, 10)
-        settings = json.load(open("budget_mapping.json"))
+        settings = json.load(open("settings.json"))
         msgs = email.get_messages(10, 'to:' + settings['expenditure_email'])
         if msgs['resultSizeEstimate'] > 0:
             msg_list = msgs['messages']
