@@ -25,7 +25,7 @@ class Store:
     def read(self):
         # Reads the .csv file, and returns a list of objects
         object_list = []
-        with open(self.file_path, newline='') as file:
+        with open(self.file_path, newline='', encoding='latin-1') as file:
             reader = csv.reader(file)
             for row in reader:
                 object_list.append(self.constructor(*row))
