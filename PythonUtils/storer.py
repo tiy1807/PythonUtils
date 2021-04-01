@@ -25,7 +25,7 @@ class Store:
     def read(self):
         # Reads the .csv file, and returns a list of objects
         object_list = []
-        with open(self.file_path) as file:
+        with open(self.file_path, newline='') as file:
             reader = csv.reader(file)
             for row in reader:
                 object_list.append(self.constructor(*row))
@@ -34,7 +34,7 @@ class Store:
     def write(self, object, access="w"):
         # Overwrites file. Writes objects in a .csv format. Requires object
         # to have a to_csv function
-        writer = csv.writer(open(self.file_path,access,newline=''))
+        writer = csv.writer(open(self.file_path, access, newline=''))
         print(f"Writing {object.to_csv()} to {self.file_path}")
         writer.writerows(object.to_csv())
 

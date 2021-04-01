@@ -97,7 +97,7 @@ class ExpenditureRecord(Record):
 #             of the records.
 # ------------------------------------------------------------------------------
 class ExpenditureFile(Store):
-    def __init__(self, settings_file="settings.json"):
+    def __init__(self, settings_file="expenditure_config.json"):
         self.logger = logging.getLogger('expenditure')
 
         with open(settings_file) as f:
@@ -276,7 +276,7 @@ class ExpenditureFile(Store):
         print("The total value is: %s" % value)
 
     def create_budgeting_periods(self, start_date, end_date):
-        budget_data = json.load(open("settings.json"))
+        budget_data = json.load(open("expenditure_config.json"))
         general_periods = budget_data["periods"]
         start_date = string_to_date(start_date)
         end_date = string_to_date(end_date) + datetime.timedelta(days=32)
@@ -302,7 +302,7 @@ class ExpenditureFile(Store):
 
     def budget_report(self, start_date, end_date):
         self.logger.info(f"Creating budget report from {start_date} to {end_date}")
-        with open("settings.json") as budget_json:
+        with open("expenditure_config.json") as budget_json:
             budget_data = json.load(budget_json, object_pairs_hook=OrderedDict)
 
         budget_map = budget_data["mapping"]
@@ -336,7 +336,7 @@ class ExpenditureFile(Store):
 
     def read_email(self):
         email = EmailInfo(10, 10)
-        settings = json.load(open("settings.json"))
+        settings = json.load(open("expenditure_config.json"))
         msgs = email.get_messages(10, 'to:' + settings['expenditure_email'])
         if msgs['resultSizeEstimate'] > 0:
             msg_list = msgs['messages']

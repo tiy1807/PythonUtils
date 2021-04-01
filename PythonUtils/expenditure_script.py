@@ -4,5 +4,5 @@ import logging
 logging.basicConfig(filename="expenditure.log", level=logging.INFO, filemode="w")
 logger = logging.getLogger('expenditure')
 
-file = ExpenditureFile("settings.json")
+file = ExpenditureFile("expenditure_config.json")
 file.run()

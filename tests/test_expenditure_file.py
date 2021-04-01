@@ -8,7 +8,7 @@ from PythonUtils.record_expenditure import ExpenditureRecord
 
 @pytest.fixture(scope="module")
 def file():
-    expenditure_file = ExpenditureFile("tests/data/settings.json")
+    expenditure_file = ExpenditureFile("tests/data/expenditure_config.json")
     yield expenditure_file
 
 
@@ -41,9 +41,9 @@ class TestFile:
         d = tmp_path / "expfiles"
         d.mkdir()
         p = d / "test.csv"
-        temp_settings = d / "settings.json"
+        temp_settings = d / "expenditure_config.json"
 
-        with open('tests/data/settings.json', "r") as master_settings:
+        with open('tests/data/expenditure_config.json', "r") as master_settings:
             data = json.load(master_settings)
             data["files"]["expenditure"] = str(p)
         with open(temp_settings, "w") as test_settings:
@@ -57,9 +57,9 @@ class TestFile:
         d = tmp_path / "expfiles"
         d.mkdir()
         p = d / "petrol_spending.csv"
-        temp_settings = d / "settings.json"
+        temp_settings = d / "expenditure_config.json"
 
-        with open('tests/data/settings.json', "r") as master_settings:
+        with open('tests/data/expenditure_config.json', "r") as master_settings:
             data = json.load(master_settings)
             data["files"]["petrol"] = str(p)
         with open(temp_settings, "w") as test_settings:
