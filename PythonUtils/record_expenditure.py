@@ -166,6 +166,8 @@ class ExpenditureFile(Store):
 
         if type_filter:
             types = properties.get("types")
+            if isinstance(types, str):
+                types = [types]
             if types == []:
                 # In this case no types were set so treat as all types
                 type_filter = False
