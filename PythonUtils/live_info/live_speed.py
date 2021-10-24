@@ -12,9 +12,12 @@ from PythonUtils.storer import Store
 class InternetInfo(DisplayItem):
     def __init__(self, expiry_duration):
         DisplayItem.__init__(self, expiry_duration)
-        self.server = speedtest.Speedtest(timeout=300)
-        self.server.get_servers()
-        self.server.get_best_server()
+        try:
+            self.server = speedtest.Speedtest(timeout=300)
+            self.server.get_servers()
+            self.server.get_best_server()
+        except:
+            pass
         self.information_store = Store("internet_connectivity.csv", Record)
 
     def set_file(self, file_path):
@@ -50,17 +53,20 @@ class InternetInfo(DisplayItem):
         wait_for_input.wait_till_up()
 
         while not lock.acquire(blocking=False):
-            self.server.get_servers()
-            self.server.get_best_server()
-            self.test()
-            results_dict = self.server.results.dict()
-            is_connected = (results_dict['download'] > 0)
+            try:
+                self.server.get_servers()
+                self.server.get_best_server()
+                self.test()
+                results_dict = self.server.results.dict()
+            except:
+                results_dict = {}
+            is_connected = (results_dict.get('download', False) > 0)
             locally_connected = (socket.gethostbyname(socket.gethostname()) != "127.0.0.1")
             self.information_store.write_new_record(datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
                                                     is_connected,
-                                                    results_dict['ping'],
-                                                    results_dict['download'],
-                                                    results_dict['upload'],
+                                                    results_dict.get('ping',0),
+                                                    results_dict.get('download',0),
+                                                    results_dict.get('upload',0),
                                                     locally_connected)
             time.sleep(interval)
 
